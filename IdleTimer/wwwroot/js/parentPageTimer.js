@@ -18,13 +18,6 @@ function setupParentPageEventListeners() {
     document.addEventListener('keypress', resetTimer);
     document.addEventListener('click', resetTimer);
     document.addEventListener('scroll', resetTimer);
-
-    // Listen for messages from the iframe
-    window.addEventListener('message', function (event) {
-        if (event.data === 'iframe-user-active') {
-            resetTimer();
-        }
-    }, false);
 }
 
 /**

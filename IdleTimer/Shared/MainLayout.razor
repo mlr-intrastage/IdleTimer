@@ -1,4 +1,8 @@
-﻿@inherits LayoutComponentBase
+﻿@using IdleTimer.Utility.Interop
+
+@inherits LayoutComponentBase
+
+@inject IdleTimerJsInterop IdleTimerJsInterop
 
 <PageTitle>IdleTimer</PageTitle>
 
@@ -12,8 +16,47 @@
             <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
         </div>
 
+        <div>
+            <p class="idle-timer-page-warning-message">Idle Warning Message: @_idleWarningMessage</p>
+            <br />
+
+            <ul>
+                <li>Move around in this page to reset the timer.  It will expire after 5 seconds and display a warning above</li>
+                <li>Moving around in the iframe should reset the timer, too. The iframe is inside the purple outlined area.</li>
+            </ul>
+        </div>
+
         <article class="content px-4">
             @Body
         </article>
     </main>
 </div>
+
+@code {
+    private static MainLayout s_mainLayout;
+    private string _idleWarningMessage = string.Empty;
+    private bool _timerInitialized;
+
+    protected override void OnInitialized()
+    {
+        s_mainLayout = this;
+        _timerInitialized = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_timerInitialized)
+        {
+            await IdleTimerJsInterop.InitializeParentPageTimer();
+            _timerInitialized = true;
+        }
+    }
+
+    // See updateIdleWarningMessage method in parentPageTimer.js.
+    [JSInvokable]
+    public static void UpdateIdleWarningMessage()
+    {
+        s_mainLayout._idleWarningMessage = "You are idle for a while. Please do something to keep the session alive.";
+        s_mainLayout.StateHasChanged();
+    }
+}

@@ -2,6 +2,7 @@
 
 @using IdleTimer.Utility.Interop
 
+@inject NavigationManager NavigationManager
 @inject IdleTimerJsInterop IdleTimerJsInterop
 
 <h3>IdleTimerPage</h3>
@@ -11,48 +12,20 @@
     - When the user is idle for 5 seconds, the _idleWarningMessage is shown. 
     - When th user is active in the iframe, the timer does not reset (this is not the intended behavior, it should reset).
 *@
-<div>
-    <p class="idle-timer-page-warning-message">Idle Warning Message: @_idleWarningMessage</p>
-    <br />
-
-    <ul>
-        <li>Move around in this page to reset the timer.  It will expire after 5 seconds and display a warning above</li>
-        <li>Moving around in the iframe should reset the timer, too. The iframe is inside the purple outlined area.</li>
-    </ul>
-</div>
 
 <div>
 
     @* When the user is active in this iframe, a message 'iframe-user-active' sent to reset the timer *@
-    <iframe src="https://en.wikipedia.org/wiki/Blazor"
-            class="idle-timer-page-iframe"
-            style="width: 800px; height: 800px;">
+    <iframe src="@(NavigationManager.BaseUri + "/IFrameExample.html")"
+    id="myIFrame"
+    class="idle-timer-page-iframe"
+    style="width: 800px; height: 800px;">
     </iframe>
 </div>
 
 @code {
-    private static IdleTimerPage s_idleTimerPage;
-    private string _idleWarningMessage = string.Empty;
-
-    protected override void OnInitialized()
-    {
-        s_idleTimerPage = this;
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            await IdleTimerJsInterop.InitializeParentPageTimer();
-            await IdleTimerJsInterop.InitializeIframeTimer();
-        }
-    }
-
-    // See updateIdleWarningMessage method in parentPageTimer.js.
-    [JSInvokable]
-    public static void UpdateIdleWarningMessage()
-    {
-        s_idleTimerPage._idleWarningMessage = "You are idle for a while. Please do something to keep the session alive.";
-        s_idleTimerPage.StateHasChanged();
+        await IdleTimerJsInterop.InitializeIframeTimer();
     }
 }
