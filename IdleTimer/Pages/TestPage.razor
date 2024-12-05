@@ -1,0 +1,25 @@
+﻿@page "/testpage"
+
+@using IdleTimer.Utility.Interop
+
+@inject NavigationManager NavigationManager
+@inject IdleTimerJsInterop IdleTimerJsInterop
+
+<h3>TestPage</h3>
+
+<div>
+    <iframe src="@(NavigationManager.BaseUri + "/IFrameExample2.html")"
+            id="myIFrame"
+            style="width: 800px; height: 800px; border-style: solid; border-color: gold; border-width: 2px;">
+    </iframe>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) 
+        {
+            await IdleTimerJsInterop.InitializeIframeTimer();
+        }
+    }
+}

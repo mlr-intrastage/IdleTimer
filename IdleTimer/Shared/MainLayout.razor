@@ -18,6 +18,7 @@
 
         <div>
             <p class="idle-timer-page-warning-message">Idle Warning Message: @_idleWarningMessage</p>
+            <p class="idle-timer-page-warning-message">Activity Timout Popup: @_activityTimoutPopupMessage</p>
             <br />
 
             <ul>
@@ -35,6 +36,7 @@
 @code {
     private static MainLayout s_mainLayout;
     private string _idleWarningMessage = string.Empty;
+    private string _activityTimoutPopupMessage = string.Empty;
     private bool _timerInitialized;
 
     protected override void OnInitialized()
@@ -57,6 +59,13 @@
     public static void UpdateIdleWarningMessage()
     {
         s_mainLayout._idleWarningMessage = "You are idle for a while. Please do something to keep the session alive.";
+        s_mainLayout.StateHasChanged();
+    }
+
+    [JSInvokable]
+    public static void ShowActivityTimoutPopup() 
+    {
+        s_mainLayout._activityTimoutPopupMessage = "Activity Timout Popup";
         s_mainLayout.StateHasChanged();
     }
 }
