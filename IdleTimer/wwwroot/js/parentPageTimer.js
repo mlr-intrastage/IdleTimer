@@ -1,6 +1,7 @@
 ﻿let timer = 0;  // the current time elapsed since last user activity (in milliseconds)
 const timerInterval = 1000; // the timer ticks at this interval (in milliseconds)
-const maxTime = 5000; // the maximum time before the idle warning is displayed (in milliseconds)
+const warningTime = 5000;
+const maxTime = 10000; // the maximum time before the idle warning is displayed (in milliseconds)
 
 /**
  * Initializes the parent page timer by setting up event listeners and starting the timer interval.
@@ -26,8 +27,12 @@ function setupParentPageEventListeners() {
 function setTimerInterval() {
     setInterval(() => {
         timer += timerInterval;
-        if (timer > maxTime) {
+        if (timer > warningTime && timer < maxTime) {
             idleWarning();
+        }
+
+        if (timer > maxTime) {
+            idleLogout();
         }
     }, timerInterval);
 }
@@ -42,6 +47,10 @@ function resetTimer() {
 /**
  * Invokes a .NET method to update the idle warning message.
  */
+function idleLogout() {
+    DotNet.invokeMethodAsync('IdleTimer', 'UpdateIdleLogoutMessage');
+}
+
 function idleWarning() {
     DotNet.invokeMethodAsync('IdleTimer', 'UpdateIdleWarningMessage');
 }

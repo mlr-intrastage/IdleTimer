@@ -17,12 +17,13 @@
         </div>
 
         <div>
-            <p class="idle-timer-page-warning-message">Idle Warning Message: @_idleWarningMessage</p>
-            <p class="idle-timer-page-warning-message">Activity Timout Popup: @_activityTimoutPopupMessage</p>
+            <p class="idle-timer-page-warning-message">Idle Warning Message: @_idleLogoutMessage</p>
+            <p class="idle-timer-page-warning-message">Activity Timout Popup: @idleWarningMessage</p>
             <br />
 
             <ul>
                 <li>Move around in this page to reset the timer.  It will expire after 5 seconds and display a warning above</li>
+                <li>After 10 seconds a logout message will appear, if no activity is detected.</li>
                 <li>Moving around in the iframe should reset the timer, too. The iframe is inside the purple outlined area.</li>
             </ul>
         </div>
@@ -35,8 +36,8 @@
 
 @code {
     private static MainLayout s_mainLayout;
-    private string _idleWarningMessage = string.Empty;
-    private string _activityTimoutPopupMessage = string.Empty;
+    private string _idleLogoutMessage = string.Empty;
+    private string idleWarningMessage = string.Empty;
     private bool _timerInitialized;
 
     protected override void OnInitialized()
@@ -56,16 +57,16 @@
 
     // See updateIdleWarningMessage method in parentPageTimer.js.
     [JSInvokable]
-    public static void UpdateIdleWarningMessage()
+    public static void UpdateIdleLogoutMessage()
     {
-        s_mainLayout._idleWarningMessage = "You are idle for a while. Please do something to keep the session alive.";
+        s_mainLayout._idleLogoutMessage = "Idle for 10 seconds... Logged out...";
         s_mainLayout.StateHasChanged();
     }
 
     [JSInvokable]
-    public static void ShowActivityTimoutPopup() 
+    public static void UpdateIdleWarningMessage() 
     {
-        s_mainLayout._activityTimoutPopupMessage = "Activity Timout Popup";
+        s_mainLayout.idleWarningMessage = "You are idle for 5 or more seconds, please do something to keep the session alive.";
         s_mainLayout.StateHasChanged();
     }
 }
