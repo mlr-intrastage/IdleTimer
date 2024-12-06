@@ -3,6 +3,12 @@
 @inherits LayoutComponentBase
 
 @inject IdleTimerJsInterop IdleTimerJsInterop
+@inject IDialogService DialogService
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 <PageTitle>IdleTimer</PageTitle>
 
@@ -17,8 +23,8 @@
         </div>
 
         <div>
-            <p class="idle-timer-page-warning-message">Idle Warning Message: @_idleLogoutMessage</p>
-            <p class="idle-timer-page-warning-message">Activity Timout Popup: @idleWarningMessage</p>
+            <p class="idle-timer-page-warning-message">Logout Message: @_idleLogoutMessage</p>
+            <p class="idle-timer-page-warning-message">Idle Warning: @idleWarningMessage</p>
             <br />
 
             <ul>
@@ -39,11 +45,13 @@
     private string _idleLogoutMessage = string.Empty;
     private string idleWarningMessage = string.Empty;
     private bool _timerInitialized;
+    private bool _idleWarningDialogRendered;
 
     protected override void OnInitialized()
     {
         s_mainLayout = this;
         _timerInitialized = false;
+        _idleWarningDialogRendered = false;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -55,7 +63,6 @@
         }
     }
 
-    // See updateIdleWarningMessage method in parentPageTimer.js.
     [JSInvokable]
     public static void UpdateIdleLogoutMessage()
     {
@@ -64,9 +71,26 @@
     }
 
     [JSInvokable]
-    public static void UpdateIdleWarningMessage() 
+    public static async Task UpdateIdleWarningMessage() 
     {
-        s_mainLayout.idleWarningMessage = "You are idle for 5 or more seconds, please do something to keep the session alive.";
-        s_mainLayout.StateHasChanged();
+        if (!s_mainLayout._idleWarningDialogRendered)
+        {
+            s_mainLayout._idleWarningDialogRendered = true;
+            await s_mainLayout.ShowIdleWarningDialog();
+            s_mainLayout.idleWarningMessage = "You are idle for 5 or more seconds, please do something to keep the session alive.";
+            s_mainLayout.StateHasChanged();
+        }
     }
+
+    private async Task ShowIdleWarningDialog() 
+    {
+        var options = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<IdleWarningDialog>("Idle Warning", options);
+        var result = await dialog.Result;
+        if (!(result?.Canceled ?? true)) 
+        {
+            _idleWarningDialogRendered = false;
+        }
+    }
+
 }

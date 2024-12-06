@@ -1,0 +1,19 @@
+﻿<MudDialog>
+    <TitleContent>
+        <h3 class="mud-dialog-title">Idle Warning</h3>
+    </TitleContent>
+    <DialogContent>
+        <div class="mud-dialog-content">
+            <p>You have been idle for 5 seconds.</p>
+            <p>Move around in this page to reset the timer.</p>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => MudDialog.Close())">CONTINUE</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public MudDialogInstance MudDialog { get; set; }
+}
